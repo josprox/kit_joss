@@ -68,6 +68,12 @@ class JossAuthService extends ChangeNotifier {
     }
   }
 
+  /// Establece manualmente la sesión activa (p.ej. tras un OAuth callback externo o deep link)
+  void setSession(JossSession session) {
+    _currentSession = session;
+    notifyListeners();
+  }
+
   /// Inicia sesión con correo y contraseña.
   Future<JossAuthResult> login({
     required String email,
