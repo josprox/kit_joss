@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../forms/joss_validators.dart';
+import '../../l10n/joss_strings.dart';
 import '../buttons/joss_button.dart';
 import '../fields/joss_text_field.dart';
 
@@ -7,15 +8,17 @@ import '../fields/joss_text_field.dart';
 class JossTwoFactorForm extends StatefulWidget {
   final Future<void> Function(String code) onVerify;
   final VoidCallback onBack;
-  final String title;
-  final String description;
+  final String? title;
+  final String? description;
+  final JossStrings? strings;
 
   const JossTwoFactorForm({
     super.key,
     required this.onVerify,
     required this.onBack,
-    this.title = 'Autenticación de dos factores',
-    this.description = 'Ingresa el código de 6 dígitos generado por tu aplicación autenticadora.',
+    this.title,
+    this.description,
+    this.strings,
   });
 
   @override
@@ -48,6 +51,8 @@ class _JossTwoFactorFormState extends State<JossTwoFactorForm> {
 
   @override
   Widget build(BuildContext context) {
+    final s = widget.strings ?? JossScope.of(context);
+
     return Form(
       key: _formKey,
       child: Column(
@@ -55,7 +60,7 @@ class _JossTwoFactorFormState extends State<JossTwoFactorForm> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            widget.title,
+            widget.title ?? s.twoFactorTitle,
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 26,
@@ -65,7 +70,7 @@ class _JossTwoFactorFormState extends State<JossTwoFactorForm> {
           ),
           const SizedBox(height: 12),
           Text(
-            widget.description,
+            widget.description ?? s.twoFactorDescription,
             textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.white70, height: 1.4, fontSize: 14),
           ),
@@ -73,14 +78,14 @@ class _JossTwoFactorFormState extends State<JossTwoFactorForm> {
           JossTextField(
             controller: _codeController,
             keyboardType: TextInputType.number,
-            labelText: 'Código de verificación',
-            hintText: '123456',
+            labelText: s.twoFactorCodeLabel,
+            hintText: s.twoFactorCodeHint,
             prefixIcon: Icons.security_rounded,
-            validator: JossValidators.twoFactorCode,
+            validator: (v) => JossValidators.twoFactorCode(v, strings: s),
           ),
           const SizedBox(height: 24),
           JossButton(
-            label: 'Verificar y continuar',
+            label: s.verifyAndContinue,
             isLoading: _isLoading,
             onPressed: _submit,
           ),
@@ -88,7 +93,7 @@ class _JossTwoFactorFormState extends State<JossTwoFactorForm> {
           Center(
             child: TextButton(
               onPressed: widget.onBack,
-              child: const Text('Volver al inicio de sesión', style: TextStyle(color: Colors.white70)),
+              child: Text(s.backToLogin, style: const TextStyle(color: Colors.white70)),
             ),
           ),
         ],

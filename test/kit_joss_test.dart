@@ -17,12 +17,38 @@ void main() {
     });
   });
 
+  group('JossStrings & i18n Tests', () {
+    test('proporciona strings por defecto en español', () {
+      final es = JossStrings.es();
+      expect(es.login, 'Iniciar sesión');
+      expect(es.email, 'Correo electrónico');
+      expect(es.passwordTooShort(8), contains('al menos 8 caracteres'));
+    });
+
+    test('proporciona strings en inglés', () {
+      final en = JossStrings.en();
+      expect(en.login, 'Sign in');
+      expect(en.email, 'Email');
+      expect(en.passwordTooShort(8), contains('at least 8 characters'));
+    });
+
+    test('permite customizar campos con copyWith', () {
+      final custom = JossStrings.es().copyWith(login: 'Entrar a mi cuenta');
+      expect(custom.login, 'Entrar a mi cuenta');
+      expect(custom.email, 'Correo electrónico');
+    });
+  });
+
   group('JossValidators Tests', () {
-    test('valida correos electrónicos', () {
+    test('valida correos electrónicos con textos i18n', () {
       expect(JossValidators.email('test@joss.com'), isNull);
       expect(JossValidators.email('test joss@domain.com'), isNotNull);
       expect(JossValidators.email('invalido'), isNotNull);
       expect(JossValidators.email(''), isNotNull);
+
+      // Con inglés explícito
+      final errorEn = JossValidators.email('', strings: JossStrings.en());
+      expect(errorEn, equals('Email is required.'));
     });
 
     test('valida contraseñas y coincidencia', () {

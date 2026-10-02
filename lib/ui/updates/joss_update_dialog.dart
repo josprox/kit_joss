@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../l10n/joss_strings.dart';
 import '../../models/joss_update_info.dart';
 import '../buttons/joss_button.dart';
 
@@ -7,23 +8,28 @@ import '../buttons/joss_button.dart';
 class JossUpdateDialog extends StatelessWidget {
   final JossUpdateInfo updateInfo;
   final VoidCallback? onDismiss;
+  final JossStrings? strings;
 
   const JossUpdateDialog({
     super.key,
     required this.updateInfo,
     this.onDismiss,
+    this.strings,
   });
 
   /// Muestra el diálogo en el contexto provisto.
   static Future<void> show(
     BuildContext context, {
     required JossUpdateInfo updateInfo,
+    JossStrings? strings,
   }) {
+    final s = strings ?? JossScope.of(context);
     return showDialog(
       context: context,
       barrierDismissible: !updateInfo.isMandatory,
       builder: (context) => JossUpdateDialog(
         updateInfo: updateInfo,
+        strings: s,
         onDismiss: () => Navigator.of(context).pop(),
       ),
     );
@@ -31,6 +37,8 @@ class JossUpdateDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = strings ?? JossScope.of(context);
+
     return Dialog(
       backgroundColor: const Color(0xFF1B1F33),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -49,7 +57,7 @@ class JossUpdateDialog extends StatelessWidget {
             ),
             const SizedBox(height: 18),
             Text(
-              updateInfo.title,
+              updateInfo.title.isNotEmpty ? updateInfo.title : s.newVersionAvailable,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 20,
@@ -59,7 +67,7 @@ class JossUpdateDialog extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Versión disponible: v${updateInfo.version}',
+              s.versionAvailable(updateInfo.version),
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 14,
@@ -81,7 +89,7 @@ class JossUpdateDialog extends StatelessWidget {
             ],
             const SizedBox(height: 24),
             JossButton(
-              label: 'Actualizar ahora',
+              label: s.updateNow,
               icon: Icons.download_rounded,
               onPressed: () async {
                 final uri = Uri.tryParse(updateInfo.downloadUrl);
@@ -93,7 +101,7 @@ class JossUpdateDialog extends StatelessWidget {
             if (!updateInfo.isMandatory) ...[
               const SizedBox(height: 10),
               JossButton.text(
-                label: 'Más tarde',
+                label: s.later,
                 onPressed: onDismiss ?? () => Navigator.of(context).pop(),
               ),
             ],

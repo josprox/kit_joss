@@ -13,6 +13,9 @@ export 'models/joss_user.dart';
 export 'models/joss_session.dart';
 export 'models/joss_update_info.dart';
 
+// Localization (i18n)
+export 'l10n/joss_strings.dart';
+
 // Auth
 export 'auth/joss_auth_service.dart';
 

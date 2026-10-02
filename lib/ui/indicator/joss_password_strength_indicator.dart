@@ -1,26 +1,31 @@
 import 'package:flutter/material.dart';
+import '../../l10n/joss_strings.dart';
 
 /// Indicador visual de seguridad y fuerza de contraseñas para el ecosistema Joss.
-/// Unifica la implementación duplicada entre Joss-Auth y JossRed-Flutter.
+/// Unifica la implementación de Joss-Auth y JossRed con soporte i18n personalizable.
 class JossPasswordStrengthIndicator extends StatelessWidget {
   final String password;
   final String? title;
   final bool showRequirements;
   final Color validColor;
   final Color invalidColor;
+  final JossStrings? strings;
 
   const JossPasswordStrengthIndicator({
     super.key,
     required this.password,
-    this.title = 'Requisitos de la contraseña:',
+    this.title,
     this.showRequirements = true,
     this.validColor = const Color(0xFF00B894),
     this.invalidColor = Colors.white38,
+    this.strings,
   });
 
   @override
   Widget build(BuildContext context) {
     if (password.isEmpty) return const SizedBox.shrink();
+
+    final s = strings ?? JossScope.of(context);
 
     final hasMinLength = password.length >= 8;
     final hasUpperCase = password.contains(RegExp(r'[A-Z]'));
@@ -38,17 +43,17 @@ class JossPasswordStrengthIndicator extends StatelessWidget {
     final progress = score / 5.0;
 
     Color barColor = Colors.redAccent;
-    String strengthText = 'Muy débil';
+    String strengthText = s.strengthVeryWeak;
 
     if (score >= 4) {
       barColor = validColor;
-      strengthText = 'Fuerte';
+      strengthText = s.strengthStrong;
     } else if (score >= 3) {
       barColor = const Color(0xFFFDCB6E);
-      strengthText = 'Media';
+      strengthText = s.strengthMedium;
     } else if (score >= 2) {
       barColor = Colors.orangeAccent;
-      strengthText = 'Débil';
+      strengthText = s.strengthWeak;
     }
 
     return Column(
@@ -59,7 +64,7 @@ class JossPasswordStrengthIndicator extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Seguridad: $strengthText',
+              '${s.passwordStrengthPrefix}: $strengthText',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -88,17 +93,16 @@ class JossPasswordStrengthIndicator extends StatelessWidget {
         ),
         if (showRequirements) ...[
           const SizedBox(height: 12),
-          if (title != null)
-            Text(
-              title!,
-              style: const TextStyle(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.bold),
-            ),
+          Text(
+            title ?? s.passwordRequirementsTitle,
+            style: const TextStyle(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 6),
-          _buildItem('Mínimo 8 caracteres', hasMinLength),
-          _buildItem('Una letra mayúscula', hasUpperCase),
-          _buildItem('Una letra minúscula', hasLowerCase),
-          _buildItem('Al menos un número', hasNumber),
-          _buildItem('Un carácter especial (!@#\$%^&*)', hasSpecialChar),
+          _buildItem(s.reqMin8Chars, hasMinLength),
+          _buildItem(s.reqUppercase, hasUpperCase),
+          _buildItem(s.reqLowercase, hasLowerCase),
+          _buildItem(s.reqNumber, hasNumber),
+          _buildItem(s.reqSpecialChar, hasSpecialChar),
         ],
       ],
     );

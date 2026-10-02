@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../forms/joss_validators.dart';
+import '../../l10n/joss_strings.dart';
 import '../buttons/joss_button.dart';
 import '../fields/joss_text_field.dart';
 import '../indicator/joss_password_strength_indicator.dart';
@@ -15,11 +16,13 @@ class JossRegisterForm extends StatefulWidget {
     required String confirmPassword,
   }) onRegister;
   final VoidCallback onBack;
+  final JossStrings? strings;
 
   const JossRegisterForm({
     super.key,
     required this.onRegister,
     required this.onBack,
+    this.strings,
   });
 
   @override
@@ -71,16 +74,18 @@ class _JossRegisterFormState extends State<JossRegisterForm> {
 
   @override
   Widget build(BuildContext context) {
+    final s = widget.strings ?? JossScope.of(context);
+
     return Form(
       key: _formKey,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'Crear cuenta',
+          Text(
+            s.createAccount,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 28.0,
               fontWeight: FontWeight.w900,
               color: Colors.white,
@@ -89,10 +94,10 @@ class _JossRegisterFormState extends State<JossRegisterForm> {
           const SizedBox(height: 24.0),
           JossTextField(
             controller: _usernameController,
-            labelText: 'Nombre de usuario',
-            hintText: 'jossdev',
+            labelText: s.username,
+            hintText: s.usernameHint,
             prefixIcon: Icons.alternate_email,
-            validator: (v) => JossValidators.requiredField(v, 'El nombre de usuario'),
+            validator: (v) => JossValidators.requiredField(v, s.username, strings: s),
           ),
           const SizedBox(height: 14.0),
           Row(
@@ -100,20 +105,20 @@ class _JossRegisterFormState extends State<JossRegisterForm> {
               Expanded(
                 child: JossTextField(
                   controller: _firstNameController,
-                  labelText: 'Nombre',
-                  hintText: 'Joss',
+                  labelText: s.firstName,
+                  hintText: s.firstNameHint,
                   prefixIcon: Icons.person_outline,
-                  validator: (v) => JossValidators.requiredField(v, 'El nombre'),
+                  validator: (v) => JossValidators.requiredField(v, s.firstName, strings: s),
                 ),
               ),
               const SizedBox(width: 12.0),
               Expanded(
                 child: JossTextField(
                   controller: _lastNameController,
-                  labelText: 'Apellido',
-                  hintText: 'Estrada',
+                  labelText: s.lastName,
+                  hintText: s.lastNameHint,
                   prefixIcon: Icons.person_outline,
-                  validator: (v) => JossValidators.requiredField(v, 'El apellido'),
+                  validator: (v) => JossValidators.requiredField(v, s.lastName, strings: s),
                 ),
               ),
             ],
@@ -121,35 +126,35 @@ class _JossRegisterFormState extends State<JossRegisterForm> {
           const SizedBox(height: 14.0),
           JossTextField(
             controller: _emailController,
-            labelText: 'Correo electrónico',
-            hintText: 'usuario@joss.com',
+            labelText: s.email,
+            hintText: s.emailHint,
             prefixIcon: Icons.email_outlined,
             keyboardType: TextInputType.emailAddress,
-            validator: JossValidators.email,
+            validator: (v) => JossValidators.email(v, strings: s),
           ),
           const SizedBox(height: 14.0),
           JossTextField(
             controller: _passwordController,
-            labelText: 'Contraseña',
-            hintText: 'Crea una contraseña segura',
+            labelText: s.password,
+            hintText: s.passwordHint,
             prefixIcon: Icons.lock_outline,
             isPassword: true,
             onChanged: (val) => setState(() => _currentPassword = val),
-            validator: (v) => JossValidators.password(v, minLength: 8),
+            validator: (v) => JossValidators.password(v, minLength: 8, strings: s),
           ),
-          JossPasswordStrengthIndicator(password: _currentPassword),
+          JossPasswordStrengthIndicator(password: _currentPassword, strings: s),
           const SizedBox(height: 14.0),
           JossTextField(
             controller: _confirmPasswordController,
-            labelText: 'Confirmar contraseña',
-            hintText: 'Repite tu contraseña',
+            labelText: s.confirmPassword,
+            hintText: s.confirmPasswordHint,
             prefixIcon: Icons.lock_outline,
             isPassword: true,
-            validator: (v) => JossValidators.confirmPassword(v, _passwordController.text),
+            validator: (v) => JossValidators.confirmPassword(v, _passwordController.text, strings: s),
           ),
           const SizedBox(height: 24.0),
           JossButton(
-            label: 'Registrarse',
+            label: s.register,
             isLoading: _isLoading,
             onPressed: _submit,
           ),
@@ -157,7 +162,7 @@ class _JossRegisterFormState extends State<JossRegisterForm> {
           Center(
             child: TextButton(
               onPressed: widget.onBack,
-              child: const Text('¿Ya tienes cuenta? Inicia sesión', style: TextStyle(color: Colors.white70)),
+              child: Text(s.alreadyHaveAccount, style: const TextStyle(color: Colors.white70)),
             ),
           ),
         ],

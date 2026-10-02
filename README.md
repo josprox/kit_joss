@@ -60,7 +60,29 @@ if (result.success) {
 }
 ```
 
-### 2. Formularios Listos y Desacoplados (UI)
+### 2. Internacionalización y Traducciones (i18n)
+
+`kit_joss` incluye de serie traducciones en **Español** (`JossStrings.es()`) e **Inglés** (`JossStrings.en()`). Además, permite sobreescribir cualquier texto o conectar los `.arb` / `Traduccionesv3` / `S.of(context)` de tu proyecto:
+
+```dart
+// Opción A: A nivel de widget usando strings directos o generados por tu app
+JossLoginForm(
+  strings: JossStrings.es().copyWith(
+    login: Traduccionesv3.of(context).login,
+    email: Traduccionesv3.of(context).email,
+  ),
+  onLogin: (email, pass) async { ... },
+)
+
+// Opción B: A nivel de árbol con JossScope
+JossScope(
+  strings: isEnglish ? JossStrings.en() : JossStrings.es(),
+  child: const MiPantallaDeAuth(),
+)
+```
+```
+
+### 3. Formularios Listos y Desacoplados (UI)
 
 ```dart
 JossLoginForm(
