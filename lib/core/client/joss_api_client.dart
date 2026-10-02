@@ -16,8 +16,8 @@ class JossApiClient {
     http.Client? client,
   }) : _client = client ?? http.Client();
 
-  /// Normaliza la URL eliminando diagonales y manejando `/api`.
-  Uri buildUri(String endpoint, [Map<String, dynamic>? queryParameters]) {
+  /// Retorna la URL raíz sin /api ni diagonal al final.
+  String get rootUrl {
     var base = baseUrl.trim();
     if (base.endsWith('/')) {
       base = base.substring(0, base.length - 1);
@@ -25,8 +25,13 @@ class JossApiClient {
     if (base.endsWith('/api')) {
       base = base.substring(0, base.length - 4);
     }
+    return base;
+  }
+
+  /// Normaliza la URL eliminando diagonales y manejando `/api`.
+  Uri buildUri(String endpoint, [Map<String, dynamic>? queryParameters]) {
     final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
-    final finalUrl = '$base/api/$cleanEndpoint';
+    final finalUrl = '$rootUrl/api/$cleanEndpoint';
 
     final uri = Uri.parse(finalUrl);
     if (queryParameters != null && queryParameters.isNotEmpty) {

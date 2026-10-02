@@ -265,13 +265,16 @@ class JossAuthService extends ChangeNotifier {
     String? redirectUri,
   }) async {
     try {
+      final normProvider = provider.trim().toLowerCase();
+      final effectiveRedirectUri = (redirectUri != null && redirectUri.isNotEmpty)
+          ? redirectUri.trim()
+          : '${client.rootUrl}/auth/$normProvider/callback';
+
       final body = <String, dynamic>{
-        'provider': provider.trim().toLowerCase(),
+        'provider': normProvider,
         'code': code.trim(),
+        'redirect_uri': effectiveRedirectUri,
       };
-      if (redirectUri != null && redirectUri.isNotEmpty) {
-        body['redirect_uri'] = redirectUri.trim();
-      }
 
       final response = await client.post(
         'auth/social/callback',
