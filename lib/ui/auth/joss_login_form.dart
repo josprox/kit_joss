@@ -4,6 +4,9 @@ import '../../l10n/joss_strings.dart';
 import '../buttons/joss_button.dart';
 import '../fields/joss_text_field.dart';
 
+import '../buttons/joss_social_buttons_section.dart';
+import '../../models/joss_social_provider.dart';
+
 /// Formulario configurable y reutilizable de inicio de sesión del ecosistema Joss.
 class JossLoginForm extends StatefulWidget {
   final Future<void> Function(String email, String password) onLogin;
@@ -13,6 +16,9 @@ class JossLoginForm extends StatefulWidget {
   final String? title;
   final String? submitText;
   final JossStrings? strings;
+  final List<JossSocialProviderInfo>? socialProviders;
+  final void Function(JossSocialProviderInfo provider)? onSocialLogin;
+  final String? loadingSocialProviderId;
 
   const JossLoginForm({
     super.key,
@@ -23,6 +29,9 @@ class JossLoginForm extends StatefulWidget {
     this.title,
     this.submitText,
     this.strings,
+    this.socialProviders,
+    this.onSocialLogin,
+    this.loadingSocialProviderId,
   });
 
   @override
@@ -132,6 +141,14 @@ class _JossLoginFormState extends State<JossLoginForm> {
               ),
             ),
           ],
+          if (widget.socialProviders != null && widget.socialProviders!.isNotEmpty)
+            JossSocialButtonsSection(
+              providers: widget.socialProviders!,
+              onProviderSelected: widget.onSocialLogin,
+              loadingProviderId: widget.loadingSocialProviderId,
+              dividerText: s.orSignInWith,
+              strings: s,
+            ),
         ],
       ),
     );

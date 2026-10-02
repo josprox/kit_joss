@@ -10,6 +10,10 @@ class JossStrings {
   final String password;
   final String passwordHint;
   final String back;
+  final String orContinueWith;
+  final String orSignInWith;
+  final String orSignUpWith;
+  final String Function(String provider) continueWith;
 
   // Login
   final String welcomeBack;
@@ -75,6 +79,10 @@ class JossStrings {
     required this.password,
     required this.passwordHint,
     required this.back,
+    this.orContinueWith = 'O continuar con',
+    this.orSignInWith = 'O inicia sesión con',
+    this.orSignUpWith = 'O regístrate con',
+    this.continueWith = _defaultContinueWith,
     // Login
     required this.welcomeBack,
     required this.login,
@@ -128,6 +136,9 @@ class JossStrings {
     required this.later,
   });
 
+  static String _defaultContinueWith(String p) => 'Continuar con $p';
+  static String _defaultContinueWithEn(String p) => 'Continue with $p';
+
   /// Textos oficiales en Español (Predeterminado en el ecosistema Joss).
   factory JossStrings.es() => JossStrings(
         email: 'Correo electrónico',
@@ -135,6 +146,10 @@ class JossStrings {
         password: 'Contraseña',
         passwordHint: 'Tu contraseña',
         back: 'Volver',
+        orContinueWith: 'O continuar con',
+        orSignInWith: 'O inicia sesión con',
+        orSignUpWith: 'O regístrate con',
+        continueWith: _defaultContinueWith,
         welcomeBack: 'Bienvenido de nuevo',
         login: 'Iniciar sesión',
         forgotPassword: '¿Olvidaste tu contraseña?',
@@ -190,6 +205,10 @@ class JossStrings {
         password: 'Password',
         passwordHint: 'Your password',
         back: 'Back',
+        orContinueWith: 'Or continue with',
+        orSignInWith: 'Or sign in with',
+        orSignUpWith: 'Or sign up with',
+        continueWith: _defaultContinueWithEn,
         welcomeBack: 'Welcome back',
         login: 'Sign in',
         forgotPassword: 'Forgot password?',
@@ -245,6 +264,10 @@ class JossStrings {
     String? password,
     String? passwordHint,
     String? back,
+    String? orContinueWith,
+    String? orSignInWith,
+    String? orSignUpWith,
+    String Function(String provider)? continueWith,
     String? welcomeBack,
     String? login,
     String? forgotPassword,
@@ -297,6 +320,10 @@ class JossStrings {
       password: password ?? this.password,
       passwordHint: passwordHint ?? this.passwordHint,
       back: back ?? this.back,
+      orContinueWith: orContinueWith ?? this.orContinueWith,
+      orSignInWith: orSignInWith ?? this.orSignInWith,
+      orSignUpWith: orSignUpWith ?? this.orSignUpWith,
+      continueWith: continueWith ?? this.continueWith,
       welcomeBack: welcomeBack ?? this.welcomeBack,
       login: login ?? this.login,
       forgotPassword: forgotPassword ?? this.forgotPassword,

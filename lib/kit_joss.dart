@@ -11,6 +11,7 @@ export 'core/utils/joss_version.dart';
 // Models
 export 'models/joss_user.dart';
 export 'models/joss_session.dart';
+export 'models/joss_social_provider.dart';
 export 'models/joss_update_info.dart';
 
 // Localization (i18n)
@@ -30,6 +31,8 @@ export 'forms/joss_validators.dart';
 
 // UI
 export 'ui/buttons/joss_button.dart';
+export 'ui/buttons/joss_social_button.dart';
+export 'ui/buttons/joss_social_buttons_section.dart';
 export 'ui/fields/joss_text_field.dart';
 export 'ui/indicator/joss_password_strength_indicator.dart';
 export 'ui/auth/joss_login_form.dart';

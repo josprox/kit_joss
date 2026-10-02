@@ -104,7 +104,7 @@ void main() {
       expect(user.displayName, 'Joss Estrada');
     });
 
-    test('deserializa json envuelto en Fields (formato JossRed API)', () {
+    test('deserializa json envuelto en Fields (formato JossRed API) con cuentas sociales', () {
       final json = {
         'Fields': {
           'id': 99,
@@ -112,12 +112,58 @@ void main() {
           'email': 'music@joss.com',
           'firstName': 'Estrella',
           'lastName': 'Fan',
+          'social_accounts': ['google', 'github'],
         }
       };
       final user = JossUser.fromJson(json);
       expect(user.id, 99);
       expect(user.username, 'music_user');
       expect(user.displayName, 'Estrella Fan');
+      expect(user.socialAccounts, contains('google'));
+      expect(user.socialAccounts, contains('github'));
+    });
+  });
+
+  group('JossSocialProvider & OAuth Tests', () {
+    test('parsea identificadores de proveedores correctamente', () {
+      final google = JossSocialProviderInfo.fromString('google');
+      expect(google.id, 'google');
+      expect(google.name, 'Google');
+
+      final gh = JossSocialProviderInfo.fromString('github');
+      expect(gh.id, 'github');
+      expect(gh.name, 'GitHub');
+
+      final x = JossSocialProviderInfo.fromString('twitter');
+      expect(x.id, 'twitter');
+      expect(x.name, 'X (Twitter)');
+
+      final ms = JossSocialProviderInfo.fromString('microsoft');
+      expect(ms.name, 'Microsoft');
+    });
+
+    test('deserializa JossSocialRedirectResponse', () {
+      final json = {
+        'provider': 'google',
+        'auth_url': 'https://accounts.google.com/o/oauth2/v2/auth?scope=email',
+        'redirect_uri': 'myapp://auth-callback',
+      };
+      final redirect = JossSocialRedirectResponse.fromJson(json);
+      expect(redirect.provider, 'google');
+      expect(redirect.authUrl, startsWith('https://accounts.google.com'));
+      expect(redirect.redirectUri, 'myapp://auth-callback');
+    });
+
+    test('verifica textos de OAuth en JossStrings', () {
+      final es = JossStrings.es();
+      expect(es.orSignInWith, 'O inicia sesión con');
+      expect(es.orSignUpWith, 'O regístrate con');
+      expect(es.continueWith('Google'), 'Continuar con Google');
+
+      final en = JossStrings.en();
+      expect(en.orSignInWith, 'Or sign in with');
+      expect(en.continueWith('GitHub'), 'Continue with GitHub');
     });
   });
 }
+

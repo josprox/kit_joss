@@ -7,6 +7,7 @@ class JossUser {
   final String firstName;
   final String lastName;
   final String? avatarUrl;
+  final List<String> socialAccounts;
   final Map<String, dynamic> raw;
 
   const JossUser({
@@ -16,6 +17,7 @@ class JossUser {
     this.firstName = '',
     this.lastName = '',
     this.avatarUrl,
+    this.socialAccounts = const [],
     this.raw = const {},
   });
 
@@ -38,6 +40,14 @@ class JossUser {
     final rawId = data['id'] ?? data['ID'] ?? data['userId'];
     final id = rawId is int ? rawId : int.tryParse(rawId?.toString() ?? '');
 
+    final rawSocial = data['social_accounts'] ?? data['socialAccounts'];
+    final socialList = <String>[];
+    if (rawSocial is List) {
+      for (final item in rawSocial) {
+        if (item != null) socialList.add(item.toString());
+      }
+    }
+
     return JossUser(
       id: id,
       username: data['username']?.toString() ?? '',
@@ -45,6 +55,7 @@ class JossUser {
       firstName: data['first_name']?.toString() ?? data['firstName']?.toString() ?? '',
       lastName: data['last_name']?.toString() ?? data['lastName']?.toString() ?? '',
       avatarUrl: data['avatar']?.toString() ?? data['avatar_url']?.toString(),
+      socialAccounts: List.unmodifiable(socialList),
       raw: Map<String, dynamic>.unmodifiable(data),
     );
   }
@@ -56,6 +67,7 @@ class JossUser {
         'first_name': firstName,
         'last_name': lastName,
         'avatar_url': avatarUrl,
+        'social_accounts': socialAccounts,
         ...raw,
       };
 }

@@ -4,6 +4,8 @@ import '../../l10n/joss_strings.dart';
 import '../buttons/joss_button.dart';
 import '../fields/joss_text_field.dart';
 import '../indicator/joss_password_strength_indicator.dart';
+import '../buttons/joss_social_buttons_section.dart';
+import '../../models/joss_social_provider.dart';
 
 /// Formulario configurable y reutilizable de registro del ecosistema Joss.
 class JossRegisterForm extends StatefulWidget {
@@ -17,12 +19,18 @@ class JossRegisterForm extends StatefulWidget {
   }) onRegister;
   final VoidCallback onBack;
   final JossStrings? strings;
+  final List<JossSocialProviderInfo>? socialProviders;
+  final void Function(JossSocialProviderInfo provider)? onSocialLogin;
+  final String? loadingSocialProviderId;
 
   const JossRegisterForm({
     super.key,
     required this.onRegister,
     required this.onBack,
     this.strings,
+    this.socialProviders,
+    this.onSocialLogin,
+    this.loadingSocialProviderId,
   });
 
   @override
@@ -165,6 +173,14 @@ class _JossRegisterFormState extends State<JossRegisterForm> {
               child: Text(s.alreadyHaveAccount, style: const TextStyle(color: Colors.white70)),
             ),
           ),
+          if (widget.socialProviders != null && widget.socialProviders!.isNotEmpty)
+            JossSocialButtonsSection(
+              providers: widget.socialProviders!,
+              onProviderSelected: widget.onSocialLogin,
+              loadingProviderId: widget.loadingSocialProviderId,
+              dividerText: s.orSignUpWith,
+              strings: s,
+            ),
         ],
       ),
     );

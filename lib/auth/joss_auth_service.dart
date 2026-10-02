@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../core/client/joss_api_client.dart';
 import '../core/storage/joss_storage.dart';
 import '../models/joss_session.dart';
+import '../models/joss_social_provider.dart';
 import '../models/joss_user.dart';
 
 /// Servicio central de autenticación del ecosistema Joss.
@@ -184,6 +186,112 @@ class JossAuthService extends ChangeNotifier {
       return response is Map && (response['status'] == 'success' || response['success'] == true);
     } catch (e) {
       return false;
+    }
+  }
+
+  /// Obtiene la lista de proveedores sociales habilitados en el backend.
+  Future<List<JossSocialProviderInfo>> getSocialProviders() async {
+    try {
+      final response = await client.get('auth/social/providers');
+      if (response is Map && response['providers'] is List) {
+        final list = response['providers'] as List;
+        return list
+            .map((e) => JossSocialProviderInfo.fromString(e.toString()))
+            .toList();
+      }
+      return [];
+    } catch (e) {
+      if (kDebugMode) debugPrint('[JossAuthService] Error obteniendo proveedores OAuth: $e');
+      return [];
+    }
+  }
+
+  /// Obtiene la URL de redirección hacia el proveedor OAuth (Google, GitHub, etc.).
+  Future<JossSocialRedirectResponse> getSocialAuthUrl({
+    required String provider,
+    String? redirectUri,
+    String? state,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'provider': provider.trim().toLowerCase(),
+    };
+    if (redirectUri != null && redirectUri.isNotEmpty) {
+      queryParams['redirect_uri'] = redirectUri;
+    }
+    if (state != null && state.isNotEmpty) {
+      queryParams['state'] = state;
+    }
+
+    final response = await client.get('auth/social/redirect', queryParameters: queryParams);
+    if (response is Map) {
+      return JossSocialRedirectResponse.fromJson(Map<String, dynamic>.from(response));
+    }
+    throw Exception('Respuesta inválida al solicitar redirección OAuth');
+  }
+
+  /// Inicia el flujo OAuth abriendo el navegador del sistema o in-app webview.
+  /// Retorna la URL de autorización que fue abierta.
+  Future<String> launchSocialAuth({
+    required String provider,
+    String? redirectUri,
+    String? state,
+    LaunchMode launchMode = LaunchMode.externalApplication,
+  }) async {
+    final res = await getSocialAuthUrl(
+      provider: provider,
+      redirectUri: redirectUri,
+      state: state,
+    );
+
+    final uri = Uri.parse(res.authUrl);
+    final launched = await launchUrl(uri, mode: launchMode);
+    if (!launched) {
+      throw Exception('No se pudo abrir el navegador para autenticar con $provider');
+    }
+    return res.authUrl;
+  }
+
+  /// Procesa el callback del proveedor OAuth intercambiando el código de autorización
+  /// por la sesión/token de usuario en Joss.
+  Future<JossAuthResult> loginWithSocialCallback({
+    required String provider,
+    required String code,
+    String? redirectUri,
+  }) async {
+    try {
+      final body = <String, dynamic>{
+        'provider': provider.trim().toLowerCase(),
+        'code': code.trim(),
+      };
+      if (redirectUri != null && redirectUri.isNotEmpty) {
+        body['redirect_uri'] = redirectUri.trim();
+      }
+
+      final response = await client.post(
+        'auth/social/callback',
+        body: body,
+      );
+
+      final data = Map<String, dynamic>.from(response is Map ? response : {});
+
+      // Verificar si requiere 2FA
+      final challengeToken = _extractTwoFactorChallenge(data);
+      if (challengeToken != null) {
+        return JossAuthResult.twoFactorRequired(challengeToken);
+      }
+
+      if (data['status'] == 'success' || data['token'] != null) {
+        final session = JossSession.fromLoginResponse(data);
+        await _saveSession(session);
+        _currentSession = session;
+        notifyListeners();
+        return JossAuthResult.success(session);
+      }
+
+      final msg = data['message']?.toString() ?? 'Error al autenticar con $provider';
+      return JossAuthResult.failure(msg);
+    } catch (e) {
+      return JossAuthResult.failure(_extractErrorMessage(e));
     }
   }
 
