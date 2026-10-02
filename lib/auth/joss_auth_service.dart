@@ -235,13 +235,13 @@ class JossAuthService extends ChangeNotifier {
     throw Exception('Respuesta inválida al solicitar redirección OAuth');
   }
 
-  /// Inicia el flujo OAuth abriendo el navegador del sistema o in-app webview.
+  /// Inicia el flujo OAuth abriendo el navegador del sistema o in-app webview / Custom Tabs.
   /// Retorna la URL de autorización que fue abierta.
   Future<String> launchSocialAuth({
     required String provider,
     String? redirectUri,
     String? state,
-    LaunchMode launchMode = LaunchMode.externalApplication,
+    LaunchMode launchMode = LaunchMode.inAppBrowserView,
   }) async {
     final res = await getSocialAuthUrl(
       provider: provider,
