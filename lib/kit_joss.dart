@@ -18,6 +18,7 @@ export 'models/joss_update_info.dart';
 export 'l10n/joss_strings.dart';
 
 // Auth
+export 'package:url_launcher/url_launcher.dart' show LaunchMode;
 export 'auth/joss_auth_service.dart';
 
 // Updates
