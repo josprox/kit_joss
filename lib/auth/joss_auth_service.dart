@@ -74,6 +74,39 @@ class JossAuthService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Inicia sesión directamente a partir de un token JWT (por ejemplo, proveniente de un deep link o callback OAuth externo).
+  /// Guarda la sesión en el almacenamiento seguro y consulta el perfil del usuario.
+  Future<JossAuthResult> loginWithToken(
+    String token, {
+    String? refreshToken,
+    int expiresIn = 7776000,
+  }) async {
+    try {
+      final cleanToken = token.trim();
+      if (cleanToken.isEmpty) {
+        return JossAuthResult.failure('Token inválido o vacío');
+      }
+
+      final expiresAt = DateTime.now().add(Duration(seconds: expiresIn));
+      final session = JossSession(
+        token: cleanToken,
+        refreshToken: refreshToken,
+        expiresAt: expiresAt,
+      );
+
+      await _saveSession(session);
+      _currentSession = session;
+      notifyListeners();
+
+      // Intentar cargar perfil del usuario para enriquecer la sesión
+      await fetchUserProfile();
+
+      return JossAuthResult.success(_currentSession!);
+    } catch (e) {
+      return JossAuthResult.failure(_extractErrorMessage(e));
+    }
+  }
+
   /// Inicia sesión con correo y contraseña.
   Future<JossAuthResult> login({
     required String email,
@@ -294,7 +327,10 @@ class JossAuthService extends ChangeNotifier {
         await _saveSession(session);
         _currentSession = session;
         notifyListeners();
-        return JossAuthResult.success(session);
+        if (_currentSession?.user == null) {
+          await fetchUserProfile();
+        }
+        return JossAuthResult.success(_currentSession!);
       }
 
       final msg = data['message']?.toString() ?? 'Error al autenticar con $provider';
