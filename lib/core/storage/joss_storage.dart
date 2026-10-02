@@ -11,9 +11,7 @@ class JossStorage {
   JossStorage({FlutterSecureStorage? storage})
       : _storage = storage ??
             const FlutterSecureStorage(
-              aOptions: AndroidOptions(
-                encryptedSharedPreferences: true,
-              ),
+              aOptions: AndroidOptions(),
               wOptions: WindowsOptions(),
             );
 
